@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/customer_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/customer_provider.dart';
 import '../widgets/custom_text_field.dart';
+import '../widgets/search_widget.dart';
 
 class CustomerScreen extends StatefulWidget {
   const CustomerScreen({super.key});
@@ -12,10 +14,19 @@ class CustomerScreen extends StatefulWidget {
 }
 
 class _CustomerScreenState extends State<CustomerScreen> {
+  final _searchCtl = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchCtl.dispose();
+    super.dispose();
   }
 
   void _load() {
@@ -23,6 +34,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
     if (bp.currentBusiness != null) {
       context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
     }
+  }
+
+  List<Customer> _filtered(List<Customer> customers) {
+    if (_searchQuery.isEmpty) return customers;
+    return customers
+        .where((c) => c.name.toLowerCase().contains(_searchQuery.toLowerCase()) || c.phone.contains(_searchQuery))
+        .toList();
   }
 
   void _showAddDialog() {
@@ -78,6 +96,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
   @override
   Widget build(BuildContext context) {
     final cp = context.watch<CustomerProvider>();
+    final filtered = _filtered(cp.customers);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,33 +105,44 @@ class _CustomerScreenState extends State<CustomerScreen> {
           IconButton(icon: const Icon(Icons.person_add), onPressed: _showAddDialog),
         ],
       ),
-      body: cp.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : cp.customers.isEmpty
-              ? const Center(child: Text('No customers yet'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: cp.customers.length,
-                  itemBuilder: (context, index) {
-                    final c = cp.customers[index];
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                          child: Text(c.name[0].toUpperCase(), style: const TextStyle(color: Colors.blue)),
-                        ),
-                        title: Text(c.name),
-                        subtitle: Text(c.phone.isNotEmpty ? c.phone : 'No phone'),
-                        trailing: c.totalUdhaar > 0
-                            ? Text(
-                                'Rs. ${c.totalUdhaar.toStringAsFixed(0)}',
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-                              )
-                            : null,
+      body: Column(
+        children: [
+          SearchWidget(
+            controller: _searchCtl,
+            hint: 'Search customers...',
+            onChanged: (v) => setState(() => _searchQuery = v),
+          ),
+          Expanded(
+            child: cp.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filtered.isEmpty
+                    ? const Center(child: Text('No customers found'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final c = filtered[index];
+                          return Card(
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                                child: Text(c.name[0].toUpperCase(),
+                                    style: const TextStyle(color: Colors.blue)),
+                              ),
+                              title: Text(c.name),
+                              subtitle: Text(c.phone.isNotEmpty ? c.phone : 'No phone'),
+                              trailing: c.totalUdhaar > 0
+                                  ? Text('Rs. ${c.totalUdhaar.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold, color: Colors.red))
+                                  : null,
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
+          ),
+        ],
+      ),
     );
   }
 }

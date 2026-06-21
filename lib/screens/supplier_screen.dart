@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/supplier_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/supplier_provider.dart';
 import '../widgets/custom_text_field.dart';
+import '../widgets/search_widget.dart';
 
 class SupplierScreen extends StatefulWidget {
   const SupplierScreen({super.key});
@@ -12,10 +14,19 @@ class SupplierScreen extends StatefulWidget {
 }
 
 class _SupplierScreenState extends State<SupplierScreen> {
+  final _searchCtl = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchCtl.dispose();
+    super.dispose();
   }
 
   void _load() {
@@ -23,6 +34,13 @@ class _SupplierScreenState extends State<SupplierScreen> {
     if (bp.currentBusiness != null) {
       context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
     }
+  }
+
+  List<Supplier> _filtered(List<Supplier> suppliers) {
+    if (_searchQuery.isEmpty) return suppliers;
+    return suppliers
+        .where((s) => s.name.toLowerCase().contains(_searchQuery.toLowerCase()) || s.phone.contains(_searchQuery))
+        .toList();
   }
 
   void _showAddDialog() {
@@ -78,6 +96,7 @@ class _SupplierScreenState extends State<SupplierScreen> {
   @override
   Widget build(BuildContext context) {
     final sp = context.watch<SupplierProvider>();
+    final filtered = _filtered(sp.suppliers);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,33 +105,44 @@ class _SupplierScreenState extends State<SupplierScreen> {
           IconButton(icon: const Icon(Icons.business), onPressed: _showAddDialog),
         ],
       ),
-      body: sp.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : sp.suppliers.isEmpty
-              ? const Center(child: Text('No suppliers yet'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: sp.suppliers.length,
-                  itemBuilder: (context, index) {
-                    final s = sp.suppliers[index];
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.purple.withValues(alpha: 0.1),
-                          child: Text(s.name[0].toUpperCase(), style: const TextStyle(color: Colors.purple)),
-                        ),
-                        title: Text(s.name),
-                        subtitle: Text(s.phone.isNotEmpty ? s.phone : 'No phone'),
-                        trailing: s.totalPayable > 0
-                            ? Text(
-                                'Rs. ${s.totalPayable.toStringAsFixed(0)}',
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-                              )
-                            : null,
+      body: Column(
+        children: [
+          SearchWidget(
+            controller: _searchCtl,
+            hint: 'Search suppliers...',
+            onChanged: (v) => setState(() => _searchQuery = v),
+          ),
+          Expanded(
+            child: sp.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filtered.isEmpty
+                    ? const Center(child: Text('No suppliers found'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final s = filtered[index];
+                          return Card(
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.purple.withValues(alpha: 0.1),
+                                child: Text(s.name[0].toUpperCase(),
+                                    style: const TextStyle(color: Colors.purple)),
+                              ),
+                              title: Text(s.name),
+                              subtitle: Text(s.phone.isNotEmpty ? s.phone : 'No phone'),
+                              trailing: s.totalPayable > 0
+                                  ? Text('Rs. ${s.totalPayable.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold, color: Colors.red))
+                                  : null,
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
+          ),
+        ],
+      ),
     );
   }
 }
