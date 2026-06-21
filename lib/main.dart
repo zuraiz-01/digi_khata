@@ -7,6 +7,7 @@ import 'providers/staff_provider.dart';
 import 'providers/customer_provider.dart';
 import 'providers/supplier_provider.dart';
 import 'providers/ledger_provider.dart';
+import 'providers/dashboard_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/business_setup_screen.dart';
@@ -29,6 +30,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CustomerProvider()),
         ChangeNotifierProvider(create: (_) => SupplierProvider()),
         ChangeNotifierProvider(create: (_) => LedgerProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
       ],
       child: const DigiKhataApp(),
     ),
