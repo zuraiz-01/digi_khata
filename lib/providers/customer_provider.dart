@@ -53,4 +53,15 @@ class CustomerProvider extends ChangeNotifier {
     _customers.insert(0, customer);
     notifyListeners();
   }
+
+  Future<void> deleteCustomer(String businessId, String customerId) async {
+    await _firestore
+        .collection('businesses')
+        .doc(businessId)
+        .collection('customers')
+        .doc(customerId)
+        .delete();
+    _customers.removeWhere((c) => c.id == customerId);
+    notifyListeners();
+  }
 }

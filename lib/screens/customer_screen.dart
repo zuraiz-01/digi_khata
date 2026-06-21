@@ -5,6 +5,7 @@ import '../providers/business_provider.dart';
 import '../providers/customer_provider.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/search_widget.dart';
+import '../widgets/confirm_dialog.dart';
 
 class CustomerScreen extends StatefulWidget {
   const CustomerScreen({super.key});
@@ -124,6 +125,19 @@ class _CustomerScreenState extends State<CustomerScreen> {
                           final c = filtered[index];
                           return Card(
                             child: ListTile(
+                              onLongPress: () async {
+                                final bp = context.read<BusinessProvider>();
+                                final confirmed = await showConfirmDialog(
+                                  context,
+                                  title: 'Delete Customer',
+                                  message: 'Are you sure you want to delete ${c.name}?',
+                                );
+                                if (confirmed && context.mounted) {
+                                  context
+                                      .read<CustomerProvider>()
+                                      .deleteCustomer(bp.currentBusiness!.id, c.id);
+                                }
+                              },
                               leading: CircleAvatar(
                                 backgroundColor: Colors.blue.withValues(alpha: 0.1),
                                 child: Text(c.name[0].toUpperCase(),

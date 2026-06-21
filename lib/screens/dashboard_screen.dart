@@ -343,6 +343,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (index == 1) Navigator.pushNamed(context, '/customers');
           if (index == 2) Navigator.pushNamed(context, '/suppliers');
           if (index == 3) Navigator.pushNamed(context, '/reports');
+          if (index == 4) Navigator.pushNamed(context, '/security');
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
