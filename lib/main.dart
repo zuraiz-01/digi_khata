@@ -23,6 +23,7 @@ import 'screens/invoice_screen.dart';
 import 'screens/create_invoice_screen.dart';
 import 'screens/report_screen.dart';
 import 'screens/export_screen.dart';
+import 'screens/backup_screen.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() async {
@@ -111,6 +112,7 @@ class DigiKhataApp extends StatelessWidget {
         '/create-invoice': (context) => const CreateInvoiceScreen(),
         '/reports': (context) => const ReportScreen(),
         '/export': (context) => const ExportScreen(),
+        '/backup': (context) => const BackupScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
       home: Consumer<AppAuthProvider>(

@@ -170,6 +170,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.pushNamed(context, '/whatsapp-reminder');
               } else if (value == 'export') {
                 Navigator.pushNamed(context, '/export');
+              } else if (value == 'backup') {
+                Navigator.pushNamed(context, '/backup');
               } else if (value == 'add-business') {
                 Navigator.pushNamed(context, '/business-setup');
               } else if (value == 'logout') {
@@ -180,6 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const PopupMenuItem(value: 'staff', child: Text('Staff')),
               const PopupMenuItem(value: 'whatsapp', child: Text('WhatsApp Reminder')),
               const PopupMenuItem(value: 'export', child: Text('Export Data')),
+              const PopupMenuItem(value: 'backup', child: Text('Backup & Restore')),
               const PopupMenuItem(value: 'add-business', child: Text('Add Business')),
               const PopupMenuItem(value: 'logout', child: Text('Logout')),
             ],
