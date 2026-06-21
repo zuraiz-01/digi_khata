@@ -14,6 +14,7 @@ import 'screens/staff_screen.dart';
 import 'screens/customer_screen.dart';
 import 'screens/supplier_screen.dart';
 import 'screens/add_udhaar_screen.dart';
+import 'screens/cash_transaction_screen.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() async {
@@ -92,6 +93,8 @@ class DigiKhataApp extends StatelessWidget {
         '/customers': (context) => const CustomerScreen(),
         '/suppliers': (context) => const SupplierScreen(),
         '/add-udhaar': (context) => const AddUdhaarScreen(),
+        '/cash-in': (context) => const CashTransactionScreen(isCashIn: true),
+        '/cash-out': (context) => const CashTransactionScreen(isCashIn: false),
         '/dashboard': (context) => const DashboardScreen(),
       },
       home: Consumer<AppAuthProvider>(
