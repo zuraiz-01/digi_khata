@@ -17,6 +17,7 @@ import 'screens/customer_screen.dart';
 import 'screens/supplier_screen.dart';
 import 'screens/add_udhaar_screen.dart';
 import 'screens/cash_transaction_screen.dart';
+import 'screens/whatsapp_reminder_screen.dart';
 import 'screens/invoice_screen.dart';
 import 'screens/create_invoice_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -102,6 +103,7 @@ class DigiKhataApp extends StatelessWidget {
         '/cash-in': (context) => const CashTransactionScreen(isCashIn: true),
         '/cash-out': (context) => const CashTransactionScreen(isCashIn: false),
         '/invoices': (context) => const InvoiceScreen(),
+        '/whatsapp-reminder': (context) => const WhatsAppReminderScreen(),
         '/create-invoice': (context) => const CreateInvoiceScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
