@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/quick_action_card.dart';
 import '../widgets/transaction_tile.dart';
@@ -13,19 +15,21 @@ class DashboardScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(context),
+            Consumer<AppAuthProvider>(
+              builder: (context, auth, _) => _buildAppBar(context, auth),
+            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSummaryCards(),
-                    const SizedBox(height: 24),
-                    _buildQuickActions(),
-                    const SizedBox(height: 24),
-                    _buildRecentTransactions(),
-                    const SizedBox(height: 20),
+                    _SummaryCardsSection(),
+                    SizedBox(height: 24),
+                    _QuickActionsSection(),
+                    SizedBox(height: 24),
+                    _RecentTransactionsSection(),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -37,7 +41,12 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, AppAuthProvider auth) {
+    final businessName = auth.userProfile?.businessName ?? 'Zuraiz Traders';
+    final greeting = auth.userProfile?.fullName != null
+        ? 'Welcome, ${auth.userProfile!.fullName.split(' ').first}'
+        : 'Assalam o Alaikum';
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
@@ -71,15 +80,15 @@ class DashboardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Assalam o Alaikum',
+                  greeting,
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 12,
                   ),
                 ),
-                const Text(
-                  'Zuraiz Traders',
-                  style: TextStyle(
+                Text(
+                  businessName,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -87,17 +96,32 @@ class DashboardScreen extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1565C0),
+          PopupMenuButton<String>(
+            offset: const Offset(0, 48),
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.person,
-              color: Colors.white,
-              size: 24,
+            onSelected: (value) async {
+              if (value == 'logout') {
+                await context.read<AppAuthProvider>().signOut();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'profile', child: Text('Profile')),
+              const PopupMenuItem(value: 'logout', child: Text('Logout')),
+            ],
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1565C0),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
           ),
         ],
@@ -105,7 +129,42 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildBottomNav(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF1565C0),
+        unselectedItemColor: Colors.grey.shade400,
+        currentIndex: 0,
+        onTap: (index) {},
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_rounded), label: 'Customers'),
+          BottomNavigationBarItem(icon: Icon(Icons.business_rounded), label: 'Suppliers'),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart_rounded), label: 'Reports'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: 'Settings'),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryCardsSection extends StatelessWidget {
+  const _SummaryCardsSection();
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -156,8 +215,13 @@ class DashboardScreen extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildQuickActions() {
+class _QuickActionsSection extends StatelessWidget {
+  const _QuickActionsSection();
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -208,8 +272,13 @@ class DashboardScreen extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildRecentTransactions() {
+class _RecentTransactionsSection extends StatelessWidget {
+  const _RecentTransactionsSection();
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -278,36 +347,6 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildBottomNav(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF1565C0),
-        unselectedItemColor: Colors.grey.shade400,
-        currentIndex: 0,
-        onTap: (index) {},
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_rounded), label: 'Customers'),
-          BottomNavigationBarItem(icon: Icon(Icons.business_rounded), label: 'Suppliers'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart_rounded), label: 'Reports'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: 'Settings'),
-        ],
-      ),
     );
   }
 }

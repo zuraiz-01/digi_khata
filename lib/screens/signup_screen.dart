@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -33,29 +34,30 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _signup() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
+      final auth = context.read<AppAuthProvider>();
+      await auth.signUp(
+        fullName: _nameController.text.trim(),
+        businessName: _businessController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (auth.errorMessage != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(auth.errorMessage!),
+            backgroundColor: Colors.red.shade600,
+          ),
         );
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        }
-      } on FirebaseAuthException catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.message ?? 'Signup failed'),
-              backgroundColor: Colors.red.shade600,
-            ),
-          );
-        }
+        auth.clearError();
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AppAuthProvider>();
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -167,8 +169,17 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 22),
                   ElevatedButton(
-                    onPressed: _signup,
-                    child: const Text('Sign Up'),
+                    onPressed: auth.isLoading ? null : _signup,
+                    child: auth.isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Sign Up'),
                   ),
                   const SizedBox(height: 18),
                   Row(

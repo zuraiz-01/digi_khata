@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,29 +25,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
+      final auth = context.read<AppAuthProvider>();
+      await auth.signIn(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (auth.errorMessage != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(auth.errorMessage!),
+            backgroundColor: Colors.red.shade600,
+          ),
         );
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        }
-      } on FirebaseAuthException catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.message ?? 'Login failed'),
-              backgroundColor: Colors.red.shade600,
-            ),
-          );
-        }
+        auth.clearError();
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AppAuthProvider>();
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -129,8 +128,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton(
-                    onPressed: _login,
-                    child: const Text('Login'),
+                    onPressed: auth.isLoading ? null : _login,
+                    child: auth.isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Login'),
                   ),
                   const SizedBox(height: 20),
                   Row(

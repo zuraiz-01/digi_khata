@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -7,7 +9,12 @@ import 'screens/dashboard_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const DigiKhataApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppAuthProvider(),
+      child: const DigiKhataApp(),
+    ),
+  );
 }
 
 class DigiKhataApp extends StatelessWidget {
@@ -60,12 +67,19 @@ class DigiKhataApp extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
         ),
       ),
-      initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
+      home: Consumer<AppAuthProvider>(
+        builder: (context, auth, _) {
+          if (auth.isLoggedIn) {
+            return const DashboardScreen();
+          }
+          return const LoginScreen();
+        },
+      ),
     );
   }
 }
