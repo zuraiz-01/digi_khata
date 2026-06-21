@@ -5,11 +5,13 @@ import 'providers/auth_provider.dart';
 import 'providers/business_provider.dart';
 import 'providers/staff_provider.dart';
 import 'providers/customer_provider.dart';
+import 'providers/supplier_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/business_setup_screen.dart';
 import 'screens/staff_screen.dart';
 import 'screens/customer_screen.dart';
+import 'screens/supplier_screen.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() async {
@@ -22,6 +24,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => BusinessProvider()),
         ChangeNotifierProvider(create: (_) => StaffProvider()),
         ChangeNotifierProvider(create: (_) => CustomerProvider()),
+        ChangeNotifierProvider(create: (_) => SupplierProvider()),
       ],
       child: const DigiKhataApp(),
     ),
@@ -84,6 +87,7 @@ class DigiKhataApp extends StatelessWidget {
         '/business-setup': (context) => const BusinessSetupScreen(),
         '/staff': (context) => const StaffScreen(),
         '/customers': (context) => const CustomerScreen(),
+        '/suppliers': (context) => const SupplierScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
       home: Consumer<AppAuthProvider>(

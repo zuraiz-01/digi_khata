@@ -223,6 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         currentIndex: 0,
             onTap: (index) {
               if (index == 1) Navigator.pushNamed(context, '/customers');
+              if (index == 2) Navigator.pushNamed(context, '/suppliers');
             },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
@@ -323,6 +324,7 @@ class _QuickActionsSection extends StatelessWidget {
               label: 'Add Supplier',
               icon: Icons.business,
               color: Colors.purple,
+              onTap: () => Navigator.pushNamed(context, '/suppliers'),
             ),
             QuickActionCard(
               label: 'Cash In',
