@@ -132,13 +132,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             onSelected: (value) async {
-              if (value == 'add-business') {
+              if (value == 'staff') {
+                Navigator.pushNamed(context, '/staff');
+              } else if (value == 'add-business') {
                 Navigator.pushNamed(context, '/business-setup');
               } else if (value == 'logout') {
                 await context.read<AppAuthProvider>().signOut();
               }
             },
             itemBuilder: (context) => [
+              const PopupMenuItem(value: 'staff', child: Text('Staff')),
               const PopupMenuItem(value: 'add-business', child: Text('Add Business')),
               const PopupMenuItem(value: 'logout', child: Text('Logout')),
             ],
