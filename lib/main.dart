@@ -9,6 +9,7 @@ import 'providers/supplier_provider.dart';
 import 'providers/ledger_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/invoice_provider.dart';
+import 'providers/report_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/business_setup_screen.dart';
@@ -20,6 +21,7 @@ import 'screens/cash_transaction_screen.dart';
 import 'screens/whatsapp_reminder_screen.dart';
 import 'screens/invoice_screen.dart';
 import 'screens/create_invoice_screen.dart';
+import 'screens/report_screen.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() async {
@@ -36,6 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LedgerProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => InvoiceProvider()),
+        ChangeNotifierProvider(create: (_) => ReportProvider()),
       ],
       child: const DigiKhataApp(),
     ),
@@ -105,6 +108,7 @@ class DigiKhataApp extends StatelessWidget {
         '/invoices': (context) => const InvoiceScreen(),
         '/whatsapp-reminder': (context) => const WhatsAppReminderScreen(),
         '/create-invoice': (context) => const CreateInvoiceScreen(),
+        '/reports': (context) => const ReportScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
       home: Consumer<AppAuthProvider>(
