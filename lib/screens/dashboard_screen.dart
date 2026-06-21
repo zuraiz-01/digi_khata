@@ -221,7 +221,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         selectedItemColor: const Color(0xFF1565C0),
         unselectedItemColor: Colors.grey.shade400,
         currentIndex: 0,
-        onTap: (index) {},
+            onTap: (index) {
+              if (index == 1) Navigator.pushNamed(context, '/customers');
+            },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.people_rounded), label: 'Customers'),
@@ -315,6 +317,7 @@ class _QuickActionsSection extends StatelessWidget {
               label: 'Add Customer',
               icon: Icons.person_add_alt_1,
               color: Colors.blue,
+              onTap: () => Navigator.pushNamed(context, '/customers'),
             ),
             QuickActionCard(
               label: 'Add Supplier',
