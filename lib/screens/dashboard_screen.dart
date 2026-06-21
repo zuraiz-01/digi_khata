@@ -256,6 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             QuickActionCard(
               label: 'Reports', icon: Icons.bar_chart, color: Colors.teal,
+              onTap: () => Navigator.pushNamed(context, '/invoices'),
             ),
           ],
         ),
@@ -332,6 +333,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onTap: (index) {
           if (index == 1) Navigator.pushNamed(context, '/customers');
           if (index == 2) Navigator.pushNamed(context, '/suppliers');
+          if (index == 3) Navigator.pushNamed(context, '/invoices');
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),

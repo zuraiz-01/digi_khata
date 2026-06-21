@@ -8,6 +8,7 @@ import 'providers/customer_provider.dart';
 import 'providers/supplier_provider.dart';
 import 'providers/ledger_provider.dart';
 import 'providers/dashboard_provider.dart';
+import 'providers/invoice_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/business_setup_screen.dart';
@@ -16,6 +17,8 @@ import 'screens/customer_screen.dart';
 import 'screens/supplier_screen.dart';
 import 'screens/add_udhaar_screen.dart';
 import 'screens/cash_transaction_screen.dart';
+import 'screens/invoice_screen.dart';
+import 'screens/create_invoice_screen.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() async {
@@ -31,6 +34,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SupplierProvider()),
         ChangeNotifierProvider(create: (_) => LedgerProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
+        ChangeNotifierProvider(create: (_) => InvoiceProvider()),
       ],
       child: const DigiKhataApp(),
     ),
@@ -97,6 +101,8 @@ class DigiKhataApp extends StatelessWidget {
         '/add-udhaar': (context) => const AddUdhaarScreen(),
         '/cash-in': (context) => const CashTransactionScreen(isCashIn: true),
         '/cash-out': (context) => const CashTransactionScreen(isCashIn: false),
+        '/invoices': (context) => const InvoiceScreen(),
+        '/create-invoice': (context) => const CreateInvoiceScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
       home: Consumer<AppAuthProvider>(
