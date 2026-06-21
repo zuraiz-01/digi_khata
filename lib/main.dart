@@ -22,6 +22,7 @@ import 'screens/whatsapp_reminder_screen.dart';
 import 'screens/invoice_screen.dart';
 import 'screens/create_invoice_screen.dart';
 import 'screens/report_screen.dart';
+import 'screens/export_screen.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() async {
@@ -109,6 +110,7 @@ class DigiKhataApp extends StatelessWidget {
         '/whatsapp-reminder': (context) => const WhatsAppReminderScreen(),
         '/create-invoice': (context) => const CreateInvoiceScreen(),
         '/reports': (context) => const ReportScreen(),
+        '/export': (context) => const ExportScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
       home: Consumer<AppAuthProvider>(
