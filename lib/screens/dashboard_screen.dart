@@ -1,23 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/business_provider.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/quick_action_card.dart';
 import '../widgets/transaction_tile.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadBusinesses();
+  }
+
+  void _loadBusinesses() {
+    final auth = context.read<AppAuthProvider>();
+    final bp = context.read<BusinessProvider>();
+    if (auth.firebaseUser != null && bp.businesses.isEmpty) {
+      bp.loadBusinesses(auth.firebaseUser!.uid);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AppAuthProvider>();
+    final bp = context.watch<BusinessProvider>();
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: Column(
           children: [
-            Consumer<AppAuthProvider>(
-              builder: (context, auth, _) => _buildAppBar(context, auth),
-            ),
+            _buildAppBar(context, auth, bp),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -41,8 +62,8 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, AppAuthProvider auth) {
-    final businessName = auth.userProfile?.businessName ?? 'Zuraiz Traders';
+  Widget _buildAppBar(BuildContext context, AppAuthProvider auth, BusinessProvider bp) {
+    final businessName = bp.currentBusiness?.name ?? auth.userProfile?.businessName ?? 'Zuraiz Traders';
     final greeting = auth.userProfile?.fullName != null
         ? 'Welcome, ${auth.userProfile!.fullName.split(' ').first}'
         : 'Assalam o Alaikum';
@@ -86,11 +107,20 @@ class DashboardScreen extends StatelessWidget {
                     fontSize: 12,
                   ),
                 ),
-                Text(
-                  businessName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                GestureDetector(
+                  onTap: () => _showBusinessSwitcher(context, bp),
+                  child: Row(
+                    children: [
+                      Text(
+                        businessName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      if (bp.businesses.length > 1)
+                        Icon(Icons.arrow_drop_down, color: Colors.grey.shade600, size: 20),
+                    ],
                   ),
                 ),
               ],
@@ -102,12 +132,14 @@ class DashboardScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             onSelected: (value) async {
-              if (value == 'logout') {
+              if (value == 'add-business') {
+                Navigator.pushNamed(context, '/business-setup');
+              } else if (value == 'logout') {
                 await context.read<AppAuthProvider>().signOut();
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'profile', child: Text('Profile')),
+              const PopupMenuItem(value: 'add-business', child: Text('Add Business')),
               const PopupMenuItem(value: 'logout', child: Text('Logout')),
             ],
             child: Container(
@@ -126,6 +158,45 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showBusinessSwitcher(BuildContext context, BusinessProvider bp) {
+    if (bp.businesses.length <= 1) return;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Switch Business',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              ...bp.businesses.map(
+                (b) => ListTile(
+                  leading: const Icon(Icons.store_outlined),
+                  title: Text(b.name),
+                  trailing: b.id == bp.currentBusiness?.id
+                      ? const Icon(Icons.check, color: Color(0xFF1565C0))
+                      : null,
+                  onTap: () {
+                    bp.switchBusiness(b.id);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

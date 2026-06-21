@@ -50,6 +50,8 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         );
         auth.clearError();
+      } else if (auth.isLoggedIn && mounted) {
+        Navigator.pushReplacementNamed(context, '/business-setup');
       }
     }
   }
