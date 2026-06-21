@@ -330,16 +330,19 @@ class _QuickActionsSection extends StatelessWidget {
               label: 'Cash In',
               icon: Icons.payments,
               color: Colors.green,
+              onTap: () => Navigator.pushNamed(context, '/add-udhaar'),
             ),
             QuickActionCard(
               label: 'Cash Out',
               icon: Icons.money_off,
               color: Colors.red,
+              onTap: () => Navigator.pushNamed(context, '/add-udhaar'),
             ),
             QuickActionCard(
               label: 'Add Udhaar',
               icon: Icons.receipt_long,
               color: Colors.orange,
+              onTap: () => Navigator.pushNamed(context, '/add-udhaar'),
             ),
             QuickActionCard(
               label: 'Reports',
