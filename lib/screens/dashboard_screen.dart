@@ -25,6 +25,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
       context.read<DashboardProvider>().loadDashboardData(bp.currentBusiness!.id);
+    } else if (bp.businesses.isEmpty) {
+      final auth = context.read<AppAuthProvider>();
+      if (auth.isLoggedIn) {
+        bp.loadBusinesses(auth.firebaseUser!.uid).then((_) {
+          if (bp.currentBusiness != null && mounted) {
+            context.read<DashboardProvider>().loadDashboardData(bp.currentBusiness!.id);
+          }
+        });
+      } else {
+        bp.addListener(_onBusinessReady);
+      }
     } else {
       bp.addListener(_onBusinessReady);
     }

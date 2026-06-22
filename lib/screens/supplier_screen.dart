@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/supplier_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/supplier_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/search_widget.dart';
 
@@ -33,6 +34,17 @@ class _SupplierScreenState extends State<SupplierScreen> {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
       context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
+    } else if (bp.businesses.isEmpty) {
+      final auth = context.read<AppAuthProvider>();
+      if (auth.isLoggedIn) {
+        bp.loadBusinesses(auth.firebaseUser!.uid).then((_) {
+          if (bp.currentBusiness != null && mounted) {
+            context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
+          }
+        });
+      } else {
+        bp.addListener(_onBusinessLoaded);
+      }
     } else {
       bp.addListener(_onBusinessLoaded);
     }
@@ -88,6 +100,14 @@ class _SupplierScreenState extends State<SupplierScreen> {
               if (nameCtl.text.trim().isEmpty) return;
               try {
                 final bp = context.read<BusinessProvider>();
+                if (bp.currentBusiness == null) {
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(content: Text('No business selected'), backgroundColor: Colors.red),
+                    );
+                  }
+                  return;
+                }
                 await context.read<SupplierProvider>().addSupplier(
                       businessId: bp.currentBusiness!.id,
                       name: nameCtl.text.trim(),
