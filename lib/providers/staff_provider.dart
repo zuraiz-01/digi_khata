@@ -15,14 +15,19 @@ class StaffProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final snapshot = await _firestore
-        .collection('businesses')
-        .doc(businessId)
-        .collection('staff')
-        .orderBy('addedAt', descending: true)
-        .get();
+    try {
+      final snapshot = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('staff')
+          .orderBy('addedAt', descending: true)
+          .get();
 
-    _staffList = snapshot.docs.map((doc) => StaffMember.fromMap(doc.data())).toList();
+      _staffList = snapshot.docs.map((doc) => StaffMember.fromMap(doc.data())).toList();
+    } catch (e) {
+      debugPrint('loadStaff error: $e');
+    }
+
     _isLoading = false;
     notifyListeners();
   }

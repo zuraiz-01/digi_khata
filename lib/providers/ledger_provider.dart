@@ -15,15 +15,20 @@ class LedgerProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final snapshot = await _firestore
-        .collection('businesses')
-        .doc(businessId)
-        .collection('ledger')
-        .orderBy('createdAt', descending: true)
-        .limit(50)
-        .get();
+    try {
+      final snapshot = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('ledger')
+          .orderBy('createdAt', descending: true)
+          .limit(50)
+          .get();
 
-    _entries = snapshot.docs.map((doc) => LedgerEntry.fromMap(doc.data())).toList();
+      _entries = snapshot.docs.map((doc) => LedgerEntry.fromMap(doc.data())).toList();
+    } catch (e) {
+      debugPrint('loadEntries error: $e');
+    }
+
     _isLoading = false;
     notifyListeners();
   }

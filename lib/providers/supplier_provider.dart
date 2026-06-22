@@ -15,14 +15,19 @@ class SupplierProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final snapshot = await _firestore
-        .collection('businesses')
-        .doc(businessId)
-        .collection('suppliers')
-        .orderBy('createdAt', descending: true)
-        .get();
+    try {
+      final snapshot = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('suppliers')
+          .orderBy('createdAt', descending: true)
+          .get();
 
-    _suppliers = snapshot.docs.map((doc) => Supplier.fromMap(doc.data())).toList();
+      _suppliers = snapshot.docs.map((doc) => Supplier.fromMap(doc.data())).toList();
+    } catch (e) {
+      debugPrint('loadSuppliers error: $e');
+    }
+
     _isLoading = false;
     notifyListeners();
   }

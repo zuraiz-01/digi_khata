@@ -26,49 +26,53 @@ class ReportProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final startOfMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
+    try {
+      final startOfMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
 
-    final futures = await Future.wait([
-      _firestore.collection('businesses').doc(businessId).collection('customers').get(),
-      _firestore.collection('businesses').doc(businessId).collection('suppliers').get(),
-      _firestore.collection('businesses').doc(businessId).collection('invoices').get(),
-      _firestore
-          .collection('businesses')
-          .doc(businessId)
-          .collection('ledger')
-          .where('createdAt', isGreaterThanOrEqualTo: startOfMonth)
-          .get(),
-    ]);
+      final futures = await Future.wait([
+        _firestore.collection('businesses').doc(businessId).collection('customers').get(),
+        _firestore.collection('businesses').doc(businessId).collection('suppliers').get(),
+        _firestore.collection('businesses').doc(businessId).collection('invoices').get(),
+        _firestore
+            .collection('businesses')
+            .doc(businessId)
+            .collection('ledger')
+            .where('createdAt', isGreaterThanOrEqualTo: startOfMonth)
+            .get(),
+      ]);
 
-    final custSnap = futures[0];
-    final suppSnap = futures[1];
-    final invSnap = futures[2];
-    final ledgerSnap = futures[3];
+      final custSnap = futures[0];
+      final suppSnap = futures[1];
+      final invSnap = futures[2];
+      final ledgerSnap = futures[3];
 
-    _totalCustomers = custSnap.docs.length;
-    _totalReceivable = 0;
-    for (var doc in custSnap.docs) {
-      _totalReceivable += (doc.data()['totalUdhaar'] ?? 0).toDouble();
-    }
-
-    _totalSuppliers = suppSnap.docs.length;
-    _totalPayable = 0;
-    for (var doc in suppSnap.docs) {
-      _totalPayable += (doc.data()['totalPayable'] ?? 0).toDouble();
-    }
-
-    _totalInvoices = invSnap.docs.length;
-
-    _monthlyCashIn = 0;
-    _monthlyCashOut = 0;
-    for (var doc in ledgerSnap.docs) {
-      final type = doc.data()['type'] ?? '';
-      final amount = (doc.data()['amount'] ?? 0).toDouble();
-      if (type == 'cash_in' || type == 'udhaar_received' || type == 'payment_received') {
-        _monthlyCashIn += amount;
-      } else {
-        _monthlyCashOut += amount;
+      _totalCustomers = custSnap.docs.length;
+      _totalReceivable = 0;
+      for (var doc in custSnap.docs) {
+        _totalReceivable += (doc.data()['totalUdhaar'] ?? 0).toDouble();
       }
+
+      _totalSuppliers = suppSnap.docs.length;
+      _totalPayable = 0;
+      for (var doc in suppSnap.docs) {
+        _totalPayable += (doc.data()['totalPayable'] ?? 0).toDouble();
+      }
+
+      _totalInvoices = invSnap.docs.length;
+
+      _monthlyCashIn = 0;
+      _monthlyCashOut = 0;
+      for (var doc in ledgerSnap.docs) {
+        final type = doc.data()['type'] ?? '';
+        final amount = (doc.data()['amount'] ?? 0).toDouble();
+        if (type == 'cash_in' || type == 'udhaar_received' || type == 'payment_received') {
+          _monthlyCashIn += amount;
+        } else if (type == 'cash_out' || type == 'udhaar_given' || type == 'payment_made') {
+          _monthlyCashOut += amount;
+        }
+      }
+    } catch (e) {
+      debugPrint('loadReports error: $e');
     }
 
     _isLoading = false;

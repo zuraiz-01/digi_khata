@@ -15,14 +15,19 @@ class InvoiceProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final snapshot = await _firestore
-        .collection('businesses')
-        .doc(businessId)
-        .collection('invoices')
-        .orderBy('createdAt', descending: true)
-        .get();
+    try {
+      final snapshot = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('invoices')
+          .orderBy('createdAt', descending: true)
+          .get();
 
-    _invoices = snapshot.docs.map((doc) => Invoice.fromMap(doc.data())).toList();
+      _invoices = snapshot.docs.map((doc) => Invoice.fromMap(doc.data())).toList();
+    } catch (e) {
+      debugPrint('loadInvoices error: $e');
+    }
+
     _isLoading = false;
     notifyListeners();
   }

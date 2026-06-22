@@ -15,14 +15,19 @@ class CustomerProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final snapshot = await _firestore
-        .collection('businesses')
-        .doc(businessId)
-        .collection('customers')
-        .orderBy('createdAt', descending: true)
-        .get();
+    try {
+      final snapshot = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('customers')
+          .orderBy('createdAt', descending: true)
+          .get();
 
-    _customers = snapshot.docs.map((doc) => Customer.fromMap(doc.data())).toList();
+      _customers = snapshot.docs.map((doc) => Customer.fromMap(doc.data())).toList();
+    } catch (e) {
+      debugPrint('loadCustomers error: $e');
+    }
+
     _isLoading = false;
     notifyListeners();
   }
