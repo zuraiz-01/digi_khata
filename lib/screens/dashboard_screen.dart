@@ -25,6 +25,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
       context.read<DashboardProvider>().loadDashboardData(bp.currentBusiness!.id);
+    } else {
+      bp.addListener(_onBusinessReady);
+    }
+  }
+
+  void _onBusinessReady() {
+    final bp = context.read<BusinessProvider>();
+    if (bp.currentBusiness != null) {
+      bp.removeListener(_onBusinessReady);
+      context.read<DashboardProvider>().loadDashboardData(bp.currentBusiness!.id);
     }
   }
 
@@ -240,8 +250,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         Text('Quick Actions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade800)),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          spacing: 20,
+          runSpacing: 16,
           children: [
             QuickActionCard(
               label: 'Add Customer', icon: Icons.person_add_alt_1, color: Colors.blue,

@@ -20,7 +20,7 @@ class _SupplierScreenState extends State<SupplierScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   @override
@@ -32,6 +32,16 @@ class _SupplierScreenState extends State<SupplierScreen> {
   void _load() {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
+      context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
+    } else {
+      bp.addListener(_onBusinessLoaded);
+    }
+  }
+
+  void _onBusinessLoaded() {
+    final bp = context.read<BusinessProvider>();
+    if (bp.currentBusiness != null) {
+      bp.removeListener(_onBusinessLoaded);
       context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
     }
   }
@@ -76,15 +86,23 @@ class _SupplierScreenState extends State<SupplierScreen> {
           ElevatedButton(
             onPressed: () async {
               if (nameCtl.text.trim().isEmpty) return;
-              final bp = context.read<BusinessProvider>();
-              await context.read<SupplierProvider>().addSupplier(
-                    businessId: bp.currentBusiness!.id,
-                    name: nameCtl.text.trim(),
-                    phone: phoneCtl.text.trim(),
-                    address: addressCtl.text.trim(),
-                    openingBalance: double.tryParse(balanceCtl.text.trim()) ?? 0,
+              try {
+                final bp = context.read<BusinessProvider>();
+                await context.read<SupplierProvider>().addSupplier(
+                      businessId: bp.currentBusiness!.id,
+                      name: nameCtl.text.trim(),
+                      phone: phoneCtl.text.trim(),
+                      address: addressCtl.text.trim(),
+                      openingBalance: double.tryParse(balanceCtl.text.trim()) ?? 0,
+                    );
+                if (ctx.mounted) Navigator.pop(ctx);
+              } catch (e) {
+                if (ctx.mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
                   );
-              if (ctx.mounted) Navigator.pop(ctx);
+                }
+              }
             },
             child: const Text('Add'),
           ),

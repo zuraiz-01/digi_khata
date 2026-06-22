@@ -53,4 +53,15 @@ class SupplierProvider extends ChangeNotifier {
     _suppliers.insert(0, supplier);
     notifyListeners();
   }
+
+  Future<void> deleteSupplier(String businessId, String supplierId) async {
+    await _firestore
+        .collection('businesses')
+        .doc(businessId)
+        .collection('suppliers')
+        .doc(supplierId)
+        .delete();
+    _suppliers.removeWhere((s) => s.id == supplierId);
+    notifyListeners();
+  }
 }
