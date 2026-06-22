@@ -27,6 +27,8 @@ import 'screens/export_screen.dart';
 import 'screens/backup_screen.dart';
 import 'screens/pin_lock_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/main_shell.dart';
+import 'screens/more_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +66,11 @@ class DigiKhataApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          elevation: 0,
+          scrolledUnderElevation: 1,
+        ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.grey.shade50,
@@ -93,11 +100,17 @@ class DigiKhataApp extends StatelessWidget {
           ),
         ),
         cardTheme: CardThemeData(
-          elevation: 2,
+          elevation: 1,
+          shadowColor: Colors.black.withValues(alpha: 0.08),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           clipBehavior: Clip.antiAlias,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Color(0xFF1565C0),
+          unselectedItemColor: Colors.grey,
         ),
       ),
       routes: {
@@ -118,11 +131,12 @@ class DigiKhataApp extends StatelessWidget {
         '/backup': (context) => const BackupScreen(),
         '/security': (context) => const PinLockScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/more': (context) => const MoreScreen(),
       },
       home: Consumer<AppAuthProvider>(
         builder: (context, auth, _) {
           if (auth.isLoggedIn) {
-            return const DashboardScreen();
+            return const MainShell();
           }
           return const LoginScreen();
         },

@@ -120,7 +120,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
@@ -340,32 +339,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildBottomNav(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, -2))],
-      ),
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF1565C0),
-        unselectedItemColor: Colors.grey.shade400,
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 1) Navigator.pushNamed(context, '/customers');
-          if (index == 2) Navigator.pushNamed(context, '/suppliers');
-          if (index == 3) Navigator.pushNamed(context, '/reports');
-          if (index == 4) Navigator.pushNamed(context, '/security');
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_rounded), label: 'Customers'),
-          BottomNavigationBarItem(icon: Icon(Icons.business_rounded), label: 'Suppliers'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart_rounded), label: 'Reports'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: 'Settings'),
-        ],
-      ),
-    );
-  }
 }

@@ -77,9 +77,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       appBar: AppBar(
         title: const Text('Invoices'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => Navigator.pushNamed(context, '/create-invoice').then((_) => _load()),
+          Container(
+            margin: const EdgeInsets.only(right: 4),
+            child: IconButton.filled(
+              icon: const Icon(Icons.add),
+              onPressed: () => Navigator.pushNamed(context, '/create-invoice').then((_) => _load()),
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFF1565C0),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
           ),
         ],
       ),
@@ -94,34 +102,72 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             child: ip.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filtered.isEmpty
-                    ? const Center(child: Text('No invoices found'))
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.receipt_outlined, size: 64, color: Colors.grey.shade300),
+                            const SizedBox(height: 12),
+                            Text('No invoices found', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
                           final inv = filtered[index];
                           return Card(
-                            child: ListTile(
-                              leading: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: _statusColor(inv.status).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: _statusColor(inv.status).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(Icons.receipt, color: _statusColor(inv.status), size: 24),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('#${inv.invoiceNumber}',
+                                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                                          const SizedBox(height: 2),
+                                          Text(inv.customerName ?? 'Walk-in',
+                                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                                        ],
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text('Rs. ${inv.totalAmount.toStringAsFixed(0)}',
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                        const SizedBox(height: 2),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: _statusColor(inv.status).withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(inv.status.toUpperCase(),
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: _statusColor(inv.status))),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                                child: Icon(Icons.receipt, color: _statusColor(inv.status)),
-                              ),
-                              title: Text('#${inv.invoiceNumber}'),
-                              subtitle: Text(inv.customerName ?? 'Walk-in'),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text('Rs. ${inv.totalAmount.toStringAsFixed(0)}',
-                                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  Text(inv.status.toUpperCase(),
-                                      style:
-                                          TextStyle(fontSize: 11, color: _statusColor(inv.status))),
-                                ],
                               ),
                             ),
                           );

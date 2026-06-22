@@ -51,7 +51,7 @@ class _ReportScreenState extends State<ReportScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Summary', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Summary', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade800)),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -75,7 +75,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  const Text('This Month', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('This Month', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade800)),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -99,9 +99,10 @@ class _ReportScreenState extends State<ReportScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  const Text('Records', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Records', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade800)),
                   const SizedBox(height: 12),
                   Card(
+                    margin: EdgeInsets.zero,
                     child: Column(
                       children: [
                         _statRow('Total Customers', '${rp.totalCustomers}', Icons.people, Colors.blue),

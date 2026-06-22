@@ -149,7 +149,18 @@ class _CustomerScreenState extends State<CustomerScreen> {
       appBar: AppBar(
         title: const Text('Customers'),
         actions: [
-          IconButton(icon: const Icon(Icons.person_add), onPressed: _showAddDialog),
+          Container(
+            margin: const EdgeInsets.only(right: 4),
+            child: IconButton.filled(
+              icon: const Icon(Icons.person_add_alt_1),
+              onPressed: _showAddDialog,
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFF1565C0),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -163,14 +174,25 @@ class _CustomerScreenState extends State<CustomerScreen> {
             child: cp.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filtered.isEmpty
-                    ? const Center(child: Text('No customers found'))
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.people_outline, size: 64, color: Colors.grey.shade300),
+                            const SizedBox(height: 12),
+                            Text('No customers found', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
                           final c = filtered[index];
                           return Card(
-                            child: ListTile(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
                               onLongPress: () async {
                                 final bp = context.read<BusinessProvider>();
                                 if (bp.currentBusiness == null) return;
@@ -185,18 +207,44 @@ class _CustomerScreenState extends State<CustomerScreen> {
                                       .deleteCustomer(bp.currentBusiness!.id, c.id);
                                 }
                               },
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                                child: Text(c.name[0].toUpperCase(),
-                                    style: const TextStyle(color: Colors.blue)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: const Color(0xFF1565C0).withValues(alpha: 0.1),
+                                      child: Text(c.name[0].toUpperCase(),
+                                          style: const TextStyle(
+                                              color: Color(0xFF1565C0), fontWeight: FontWeight.bold, fontSize: 18)),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(c.name,
+                                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                                          const SizedBox(height: 2),
+                                          Text(c.phone.isNotEmpty ? c.phone : 'No phone',
+                                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                                        ],
+                                      ),
+                                    ),
+                                    if (c.totalUdhaar > 0)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withValues(alpha: 0.08),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text('Rs. ${c.totalUdhaar.toStringAsFixed(0)}',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold, color: Colors.red, fontSize: 13)),
+                                      ),
+                                  ],
+                                ),
                               ),
-                              title: Text(c.name),
-                              subtitle: Text(c.phone.isNotEmpty ? c.phone : 'No phone'),
-                              trailing: c.totalUdhaar > 0
-                                  ? Text('Rs. ${c.totalUdhaar.toStringAsFixed(0)}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold, color: Colors.red))
-                                  : null,
                             ),
                           );
                         },

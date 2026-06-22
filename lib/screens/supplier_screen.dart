@@ -148,7 +148,18 @@ class _SupplierScreenState extends State<SupplierScreen> {
       appBar: AppBar(
         title: const Text('Suppliers'),
         actions: [
-          IconButton(icon: const Icon(Icons.business), onPressed: _showAddDialog),
+          Container(
+            margin: const EdgeInsets.only(right: 4),
+            child: IconButton.filled(
+              icon: const Icon(Icons.business_rounded),
+              onPressed: _showAddDialog,
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFF1565C0),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -162,26 +173,60 @@ class _SupplierScreenState extends State<SupplierScreen> {
             child: sp.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filtered.isEmpty
-                    ? const Center(child: Text('No suppliers found'))
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.business_outlined, size: 64, color: Colors.grey.shade300),
+                            const SizedBox(height: 12),
+                            Text('No suppliers found', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
                           final s = filtered[index];
                           return Card(
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.purple.withValues(alpha: 0.1),
-                                child: Text(s.name[0].toUpperCase(),
-                                    style: const TextStyle(color: Colors.purple)),
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: Colors.purple.withValues(alpha: 0.1),
+                                    child: Text(s.name[0].toUpperCase(),
+                                        style: const TextStyle(
+                                            color: Colors.purple, fontWeight: FontWeight.bold, fontSize: 18)),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(s.name,
+                                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                                        const SizedBox(height: 2),
+                                        Text(s.phone.isNotEmpty ? s.phone : 'No phone',
+                                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                                      ],
+                                    ),
+                                  ),
+                                  if (s.totalPayable > 0)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.withValues(alpha: 0.08),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text('Rs. ${s.totalPayable.toStringAsFixed(0)}',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold, color: Colors.red, fontSize: 13)),
+                                    ),
+                                ],
                               ),
-                              title: Text(s.name),
-                              subtitle: Text(s.phone.isNotEmpty ? s.phone : 'No phone'),
-                              trailing: s.totalPayable > 0
-                                  ? Text('Rs. ${s.totalPayable.toStringAsFixed(0)}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold, color: Colors.red))
-                                  : null,
                             ),
                           );
                         },
