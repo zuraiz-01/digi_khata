@@ -47,6 +47,7 @@ class CustomerProvider extends ChangeNotifier {
       phone: phone,
       address: address,
       openingBalance: openingBalance,
+      totalUdhaar: openingBalance,
       createdAt: DateTime.now(),
     );
     await docRef.set(customer.toMap());

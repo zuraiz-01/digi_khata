@@ -47,6 +47,7 @@ class SupplierProvider extends ChangeNotifier {
       phone: phone,
       address: address,
       openingBalance: openingBalance,
+      totalPayable: openingBalance,
       createdAt: DateTime.now(),
     );
     await docRef.set(supplier.toMap());
