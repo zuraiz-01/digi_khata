@@ -21,7 +21,7 @@ class MoreScreen extends StatelessWidget {
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1.4,
+                  childAspectRatio: 1.1,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                 ),
