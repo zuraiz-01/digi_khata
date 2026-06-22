@@ -8,13 +8,17 @@ class BusinessProvider extends ChangeNotifier {
   List<Business> _businesses = [];
   Business? _currentBusiness;
   bool _isLoading = false;
+  bool _hasError = false;
 
   List<Business> get businesses => _businesses;
   Business? get currentBusiness => _currentBusiness;
   bool get isLoading => _isLoading;
+  bool get hasLoaded => _hasError || _businesses.isNotEmpty;
 
   Future<void> loadBusinesses(String ownerId) async {
+    if (_isLoading) return;
     _isLoading = true;
+    _hasError = false;
     notifyListeners();
 
     try {
@@ -26,10 +30,11 @@ class BusinessProvider extends ChangeNotifier {
       _businesses = snapshot.docs.map((doc) => Business.fromMap(doc.data())).toList();
       _businesses.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      if (_currentBusiness == null && _businesses.isNotEmpty) {
+      if (_businesses.isNotEmpty && _businesses.indexWhere((b) => b.id == _currentBusiness?.id) < 0) {
         _currentBusiness = _businesses.first;
       }
     } catch (e) {
+      _hasError = true;
       debugPrint('loadBusinesses error: $e');
     }
 
@@ -55,6 +60,7 @@ class BusinessProvider extends ChangeNotifier {
     await docRef.set(business.toMap());
     _businesses.insert(0, business);
     _currentBusiness = business;
+    _hasError = false;
     notifyListeners();
   }
 

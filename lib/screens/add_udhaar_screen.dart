@@ -4,7 +4,6 @@ import '../providers/business_provider.dart';
 import '../providers/customer_provider.dart';
 import '../providers/supplier_provider.dart';
 import '../providers/ledger_provider.dart';
-import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 
 class AddUdhaarScreen extends StatefulWidget {
@@ -28,22 +27,9 @@ class _AddUdhaarScreenState extends State<AddUdhaarScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadParties());
   }
 
-  Future<void> _loadParties() async {
+  void _loadParties() {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
-      context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
-      context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
-      return;
-    }
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-    if (bp.currentBusiness != null && mounted) {
       context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
       context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
     }

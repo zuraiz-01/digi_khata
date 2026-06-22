@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../models/customer_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/customer_provider.dart';
-import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/search_widget.dart';
 import '../widgets/confirm_dialog.dart';
@@ -31,37 +30,11 @@ class _CustomerScreenState extends State<CustomerScreen> {
     super.dispose();
   }
 
-  Future<void> _load() async {
+  void _load() {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
       context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
-      return;
     }
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-    if (bp.currentBusiness != null && mounted) {
-      context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
-    }
-  }
-
-  Future<String?> _ensureBusiness() async {
-    final bp = context.read<BusinessProvider>();
-    if (bp.currentBusiness != null) return bp.currentBusiness!.id;
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-    return bp.currentBusiness?.id;
   }
 
   List<Customer> _filtered(List<Customer> customers) {
@@ -105,8 +78,8 @@ class _CustomerScreenState extends State<CustomerScreen> {
             onPressed: () async {
               if (nameCtl.text.trim().isEmpty) return;
               try {
-                final businessId = await _ensureBusiness();
-                if (businessId == null) {
+                final bp = context.read<BusinessProvider>();
+                if (bp.currentBusiness == null) {
                   if (ctx.mounted) {
                     ScaffoldMessenger.of(ctx).showSnackBar(
                       const SnackBar(
@@ -118,7 +91,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                   return;
                 }
                 await context.read<CustomerProvider>().addCustomer(
-                      businessId: businessId,
+                      businessId: bp.currentBusiness!.id,
                       name: nameCtl.text.trim(),
                       phone: phoneCtl.text.trim(),
                       address: addressCtl.text.trim(),

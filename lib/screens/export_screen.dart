@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/business_provider.dart';
 import '../providers/customer_provider.dart';
 import '../providers/invoice_provider.dart';
-import '../providers/auth_provider.dart';
 import '../services/export_service.dart';
 
 class ExportScreen extends StatefulWidget {
@@ -16,25 +15,6 @@ class ExportScreen extends StatefulWidget {
 class _ExportScreenState extends State<ExportScreen> {
   final _exportService = ExportService();
   bool _isExporting = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureBusiness());
-  }
-
-  Future<void> _ensureBusiness() async {
-    final bp = context.read<BusinessProvider>();
-    if (bp.currentBusiness != null) return;
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-  }
 
   Future<void> _exportInvoices() async {
     setState(() => _isExporting = true);

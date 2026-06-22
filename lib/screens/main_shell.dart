@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/business_provider.dart';
 import 'dashboard_screen.dart';
 import 'customer_screen.dart';
 import 'supplier_screen.dart';
@@ -14,19 +17,41 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  bool _initialLoading = true;
 
-  final List<Widget> _tabs = const [
-    DashboardScreen(),
-    CustomerScreen(),
-    SupplierScreen(),
-    ReportScreen(),
-    MoreScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initLoad());
+  }
+
+  Future<void> _initLoad() async {
+    final auth = context.read<AppAuthProvider>();
+    final bp = context.read<BusinessProvider>();
+    if (auth.isLoggedIn && !bp.hasLoaded) {
+      await bp.loadBusinesses(auth.firebaseUser!.uid);
+    }
+    if (mounted) setState(() => _initialLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_initialLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final tabs = <Widget>[
+      const DashboardScreen(),
+      const CustomerScreen(),
+      const SupplierScreen(),
+      const ReportScreen(),
+      const MoreScreen(),
+    ];
+
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _tabs),
+      body: IndexedStack(index: _currentIndex, children: tabs),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,

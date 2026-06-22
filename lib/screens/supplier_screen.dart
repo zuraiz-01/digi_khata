@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../models/supplier_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/supplier_provider.dart';
-import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/search_widget.dart';
 
@@ -30,37 +29,11 @@ class _SupplierScreenState extends State<SupplierScreen> {
     super.dispose();
   }
 
-  Future<void> _load() async {
+  void _load() {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
       context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
-      return;
     }
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-    if (bp.currentBusiness != null && mounted) {
-      context.read<SupplierProvider>().loadSuppliers(bp.currentBusiness!.id);
-    }
-  }
-
-  Future<String?> _ensureBusiness() async {
-    final bp = context.read<BusinessProvider>();
-    if (bp.currentBusiness != null) return bp.currentBusiness!.id;
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-    return bp.currentBusiness?.id;
   }
 
   List<Supplier> _filtered(List<Supplier> suppliers) {
@@ -104,8 +77,8 @@ class _SupplierScreenState extends State<SupplierScreen> {
             onPressed: () async {
               if (nameCtl.text.trim().isEmpty) return;
               try {
-                final businessId = await _ensureBusiness();
-                if (businessId == null) {
+                final bp = context.read<BusinessProvider>();
+                if (bp.currentBusiness == null) {
                   if (ctx.mounted) {
                     ScaffoldMessenger.of(ctx).showSnackBar(
                       const SnackBar(
@@ -117,7 +90,7 @@ class _SupplierScreenState extends State<SupplierScreen> {
                   return;
                 }
                 await context.read<SupplierProvider>().addSupplier(
-                      businessId: businessId,
+                      businessId: bp.currentBusiness!.id,
                       name: nameCtl.text.trim(),
                       phone: phoneCtl.text.trim(),
                       address: addressCtl.text.trim(),

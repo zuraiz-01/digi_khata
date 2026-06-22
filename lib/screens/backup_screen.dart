@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import '../providers/business_provider.dart';
-import '../providers/auth_provider.dart';
 import '../services/backup_service.dart';
 
 class BackupScreen extends StatefulWidget {
@@ -16,25 +15,6 @@ class BackupScreen extends StatefulWidget {
 class _BackupScreenState extends State<BackupScreen> {
   final _backupService = BackupService();
   bool _isProcessing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureBusiness());
-  }
-
-  Future<void> _ensureBusiness() async {
-    final bp = context.read<BusinessProvider>();
-    if (bp.currentBusiness != null) return;
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-  }
 
   Future<void> _exportBackup() async {
     setState(() => _isProcessing = true);

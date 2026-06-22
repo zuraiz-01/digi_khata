@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/business_provider.dart';
 import '../providers/staff_provider.dart';
-import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 
 class StaffScreen extends StatefulWidget {
@@ -19,21 +18,9 @@ class _StaffScreenState extends State<StaffScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadStaff());
   }
 
-  Future<void> _loadStaff() async {
+  void _loadStaff() {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
-      context.read<StaffProvider>().loadStaff(bp.currentBusiness!.id);
-      return;
-    }
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-    if (bp.currentBusiness != null && mounted) {
       context.read<StaffProvider>().loadStaff(bp.currentBusiness!.id);
     }
   }

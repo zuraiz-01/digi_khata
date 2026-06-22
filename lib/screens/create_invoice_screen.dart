@@ -4,7 +4,6 @@ import '../models/invoice_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/customer_provider.dart';
 import '../providers/invoice_provider.dart';
-import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
@@ -28,21 +27,9 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadCustomers());
   }
 
-  Future<void> _loadCustomers() async {
+  void _loadCustomers() {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
-      context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
-      return;
-    }
-    if (bp.businesses.isEmpty) {
-      final auth = context.read<AppAuthProvider>();
-      if (auth.isLoggedIn) {
-        try {
-          await bp.loadBusinesses(auth.firebaseUser!.uid);
-        } catch (_) {}
-      }
-    }
-    if (bp.currentBusiness != null && mounted) {
       context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
     }
   }
