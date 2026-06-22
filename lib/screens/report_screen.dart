@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/business_provider.dart';
 import '../providers/report_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/summary_card.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -15,12 +16,24 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
-  void _load() {
+  Future<void> _load() async {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
+      context.read<ReportProvider>().loadReports(bp.currentBusiness!.id);
+      return;
+    }
+    if (bp.businesses.isEmpty) {
+      final auth = context.read<AppAuthProvider>();
+      if (auth.isLoggedIn) {
+        try {
+          await bp.loadBusinesses(auth.firebaseUser!.uid);
+        } catch (_) {}
+      }
+    }
+    if (bp.currentBusiness != null && mounted) {
       context.read<ReportProvider>().loadReports(bp.currentBusiness!.id);
     }
   }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/invoice_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/invoice_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/search_widget.dart';
 
 class InvoiceScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   @override
@@ -28,9 +29,21 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     super.dispose();
   }
 
-  void _load() {
+  Future<void> _load() async {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
+      context.read<InvoiceProvider>().loadInvoices(bp.currentBusiness!.id);
+      return;
+    }
+    if (bp.businesses.isEmpty) {
+      final auth = context.read<AppAuthProvider>();
+      if (auth.isLoggedIn) {
+        try {
+          await bp.loadBusinesses(auth.firebaseUser!.uid);
+        } catch (_) {}
+      }
+    }
+    if (bp.currentBusiness != null && mounted) {
       context.read<InvoiceProvider>().loadInvoices(bp.currentBusiness!.id);
     }
   }

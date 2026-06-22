@@ -4,6 +4,7 @@ import '../models/invoice_model.dart';
 import '../providers/business_provider.dart';
 import '../providers/customer_provider.dart';
 import '../providers/invoice_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/custom_text_field.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
@@ -24,8 +25,24 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     super.initState();
     _invNumCtl.text = 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
     _addItem();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadCustomers());
+  }
+
+  Future<void> _loadCustomers() async {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
+      context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
+      return;
+    }
+    if (bp.businesses.isEmpty) {
+      final auth = context.read<AppAuthProvider>();
+      if (auth.isLoggedIn) {
+        try {
+          await bp.loadBusinesses(auth.firebaseUser!.uid);
+        } catch (_) {}
+      }
+    }
+    if (bp.currentBusiness != null && mounted) {
       context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
     }
   }
@@ -58,6 +75,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     if (items.isEmpty) return;
 
     final bp = context.read<BusinessProvider>();
+    if (bp.currentBusiness == null) return;
     await context.read<InvoiceProvider>().createInvoice(
           businessId: bp.currentBusiness!.id,
           customerId: _selectedCustomerId.isNotEmpty ? _selectedCustomerId : null,

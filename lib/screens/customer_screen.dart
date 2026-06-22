@@ -173,6 +173,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                             child: ListTile(
                               onLongPress: () async {
                                 final bp = context.read<BusinessProvider>();
+                                if (bp.currentBusiness == null) return;
                                 final confirmed = await showConfirmDialog(
                                   context,
                                   title: 'Delete Customer',

@@ -27,6 +27,7 @@ class _CashTransactionScreenState extends State<CashTransactionScreen> {
     if (_amountCtl.text.trim().isEmpty) return;
 
     final bp = context.read<BusinessProvider>();
+    if (bp.currentBusiness == null) return;
     await context.read<LedgerProvider>().addEntry(
           businessId: bp.currentBusiness!.id,
           type: widget.isCashIn ? 'cash_in' : 'cash_out',
