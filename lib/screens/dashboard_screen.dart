@@ -21,30 +21,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
   }
 
-  void _loadData() {
+  Future<void> _loadData() async {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
       context.read<DashboardProvider>().loadDashboardData(bp.currentBusiness!.id);
-    } else if (bp.businesses.isEmpty) {
+      return;
+    }
+    if (bp.businesses.isEmpty) {
       final auth = context.read<AppAuthProvider>();
       if (auth.isLoggedIn) {
-        bp.loadBusinesses(auth.firebaseUser!.uid).then((_) {
-          if (bp.currentBusiness != null && mounted) {
-            context.read<DashboardProvider>().loadDashboardData(bp.currentBusiness!.id);
-          }
-        });
-      } else {
-        bp.addListener(_onBusinessReady);
+        try {
+          await bp.loadBusinesses(auth.firebaseUser!.uid);
+        } catch (_) {}
       }
-    } else {
-      bp.addListener(_onBusinessReady);
     }
-  }
-
-  void _onBusinessReady() {
-    final bp = context.read<BusinessProvider>();
-    if (bp.currentBusiness != null) {
-      bp.removeListener(_onBusinessReady);
+    if (bp.currentBusiness != null && mounted) {
       context.read<DashboardProvider>().loadDashboardData(bp.currentBusiness!.id);
     }
   }

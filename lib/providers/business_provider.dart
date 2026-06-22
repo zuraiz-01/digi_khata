@@ -17,16 +17,22 @@ class BusinessProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final snapshot = await _firestore
-        .collection('businesses')
-        .where('ownerId', isEqualTo: ownerId)
-        .orderBy('createdAt', descending: true)
-        .get();
+    try {
+      final snapshot = await _firestore
+          .collection('businesses')
+          .where('ownerId', isEqualTo: ownerId)
+          .get();
 
-    _businesses = snapshot.docs.map((doc) => Business.fromMap(doc.data())).toList();
-    if (_currentBusiness == null && _businesses.isNotEmpty) {
-      _currentBusiness = _businesses.first;
+      _businesses = snapshot.docs.map((doc) => Business.fromMap(doc.data())).toList();
+      _businesses.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      if (_currentBusiness == null && _businesses.isNotEmpty) {
+        _currentBusiness = _businesses.first;
+      }
+    } catch (e) {
+      debugPrint('loadBusinesses error: $e');
     }
+
     _isLoading = false;
     notifyListeners();
   }

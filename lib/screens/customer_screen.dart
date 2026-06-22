@@ -31,32 +31,37 @@ class _CustomerScreenState extends State<CustomerScreen> {
     super.dispose();
   }
 
-  void _load() {
+  Future<void> _load() async {
     final bp = context.read<BusinessProvider>();
     if (bp.currentBusiness != null) {
       context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
-    } else if (bp.businesses.isEmpty) {
+      return;
+    }
+    if (bp.businesses.isEmpty) {
       final auth = context.read<AppAuthProvider>();
       if (auth.isLoggedIn) {
-        bp.loadBusinesses(auth.firebaseUser!.uid).then((_) {
-          if (bp.currentBusiness != null && mounted) {
-            context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
-          }
-        });
-      } else {
-        bp.addListener(_onBusinessLoaded);
+        try {
+          await bp.loadBusinesses(auth.firebaseUser!.uid);
+        } catch (_) {}
       }
-    } else {
-      bp.addListener(_onBusinessLoaded);
+    }
+    if (bp.currentBusiness != null && mounted) {
+      context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
     }
   }
 
-  void _onBusinessLoaded() {
+  Future<String?> _ensureBusiness() async {
     final bp = context.read<BusinessProvider>();
-    if (bp.currentBusiness != null) {
-      bp.removeListener(_onBusinessLoaded);
-      context.read<CustomerProvider>().loadCustomers(bp.currentBusiness!.id);
+    if (bp.currentBusiness != null) return bp.currentBusiness!.id;
+    if (bp.businesses.isEmpty) {
+      final auth = context.read<AppAuthProvider>();
+      if (auth.isLoggedIn) {
+        try {
+          await bp.loadBusinesses(auth.firebaseUser!.uid);
+        } catch (_) {}
+      }
     }
+    return bp.currentBusiness?.id;
   }
 
   List<Customer> _filtered(List<Customer> customers) {
@@ -100,17 +105,20 @@ class _CustomerScreenState extends State<CustomerScreen> {
             onPressed: () async {
               if (nameCtl.text.trim().isEmpty) return;
               try {
-                final bp = context.read<BusinessProvider>();
-                if (bp.currentBusiness == null) {
+                final businessId = await _ensureBusiness();
+                if (businessId == null) {
                   if (ctx.mounted) {
                     ScaffoldMessenger.of(ctx).showSnackBar(
-                      const SnackBar(content: Text('No business selected'), backgroundColor: Colors.red),
+                      const SnackBar(
+                        content: Text('No business found. Create a business first.'),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                   return;
                 }
                 await context.read<CustomerProvider>().addCustomer(
-                      businessId: bp.currentBusiness!.id,
+                      businessId: businessId,
                       name: nameCtl.text.trim(),
                       phone: phoneCtl.text.trim(),
                       address: addressCtl.text.trim(),
